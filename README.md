@@ -29,8 +29,8 @@ Create a resolver instance :
 	resolver.setBasePath("/your_cache_path");
 	
 Resolve an artifact :
+URL Pattern : mvn:groupID:artID:version[:ext]
 
-	//URL like mvn:groupID:artID:version[:ext]
 	File cachedFile = resolver.resolve("mvn:org.kevoree.log:org.kevoree.log:1:jar",Arrays.asList("https://oss.sonatype.org/content/groups/public/"));
 	
 Or using splitted strings :
