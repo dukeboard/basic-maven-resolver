@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,7 +27,7 @@ public class LocalResolutionTest {
         Assert.assertNotSame(null, resolved2);
 
 
-        File resolved3 = resolver.resolve("mvn:org.kevoree.log:org.kevoree.log:1:jar", l);
+        File resolved3 = resolver.resolve("mvn:org.kevoree.log:org.kevoree.log:1:jar", Arrays.asList("https://oss.sonatype.org/content/groups/public/"));
         Assert.assertNotSame(null, resolved3);
 
         File resolved4 = resolver.resolve("mvn:org.kevoree.log:org.kevoree.log:1", l);
