@@ -36,9 +36,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:dukeboard/kevoree-log.git</connection>
-        <developerConnection>scm:git:git@github.com:dukeboard/kevoree-log.git</developerConnection>
-        <url>http://github.com/dukeboard/kevoree-log.git</url>
+        <connection>scm:git:git@github.com:dukeboard/basic-maven-resolver.git</connection>
+        <developerConnection>scm:git:git@github.com:dukeboard/basic-maven-resolver.git</developerConnection>
+        <url>http://github.com/dukeboard/basic-maven-resolver.git</url>
     </scm>
 
     <parent>
