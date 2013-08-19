@@ -5,7 +5,7 @@
     <packaging>jar</packaging>
     <version>1</version>
     <name>Kevoree :: Resolver</name>
-    <url>https://github.com/dukeboard/basic-maven-resolver</url>
+    <url>https://github.com/dukeboard/basic-maven-resolver.git</url>
     <description>Kevoree :: Basic-maven-resolver</description>
 
     <dependencies>
