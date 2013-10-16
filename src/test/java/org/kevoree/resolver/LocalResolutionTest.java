@@ -33,6 +33,9 @@ public class LocalResolutionTest {
         File resolved4 = resolver.resolve("mvn:org.kevoree.log:org.kevoree.log:1", l);
         Assert.assertNotSame(null, resolved4);
 
+        File resolved5 = resolver.resolve("mvn:org.kevoree.kcl:org.kevoree.kcl:LATEST", l);
+        Assert.assertNotSame(null, resolved5);
+
     }
 
 }

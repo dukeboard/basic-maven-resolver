@@ -15,15 +15,17 @@ public class AsyncVersionFiller implements Callable<String> {
     private MavenVersionResolver versionResolver = null;
     private MavenArtefact artefact = null;
     private String url = null;
+    private String base = null;
 
-    public AsyncVersionFiller(MavenVersionResolver r, MavenArtefact a, String u) {
+    public AsyncVersionFiller(MavenVersionResolver r, MavenArtefact a,String base, String u) {
         this.versionResolver = r;
         this.artefact = a;
         this.url = u;
+        this.base = base;
     }
 
     @Override
     public String call() {
-        return versionResolver.foundRelevantVersion(artefact, url, false);
+        return versionResolver.foundRelevantVersion(artefact,base, url, false);
     }
 }

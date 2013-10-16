@@ -1,5 +1,6 @@
 package org.kevoree.resolver.util;
 
+import org.kevoree.log.Log;
 import org.kevoree.resolver.api.MavenArtefact;
 import org.kevoree.resolver.api.MavenVersionResult;
 
@@ -45,18 +46,18 @@ public class MavenVersionResolver {
     public static final String metaFile = "maven-metadata.xml";
     private static final String localmetaFile = "maven-metadata-local.xml";
 
-    public MavenVersionResult resolveVersion(MavenArtefact artefact, String basePath, boolean localDeploy) throws IOException {
+    public MavenVersionResult resolveVersion(MavenArtefact artefact, String remoteURL, boolean localDeploy) throws IOException {
 
         StringBuilder builder = new StringBuilder();
-        builder.append(basePath);
+        builder.append(remoteURL);
         String sep = File.separator;
-        if (basePath.startsWith("http")) {
+        if (remoteURL.startsWith("http")) {
             sep = "/";
         }
-        if (!basePath.endsWith(sep)) {
+        if (!remoteURL.endsWith(sep)) {
             builder.append(sep);
         }
-        if (basePath.startsWith("http")) {
+        if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
             builder.append(artefact.getGroup().replace(".", "/"));
         } else {
             builder.append(artefact.getGroup().replace(".", File.separator));
@@ -72,7 +73,7 @@ public class MavenVersionResolver {
             builder.append(metaFile);
         }
         URL metadataURL = new URL("file:///" + builder.toString());
-        if (basePath.startsWith("http")) {
+        if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
             metadataURL = new URL(builder.toString());
         }
         URLConnection c = metadataURL.openConnection();
@@ -90,26 +91,18 @@ public class MavenVersionResolver {
         }
         String result = resultBuilder.toString();
         in.close();
-
-//        System.out.println(result);
-
         MavenVersionResult versionResult = new MavenVersionResult();
-
         boolean found = false;
-//        Pattern pattern = Pattern.compile("<snapshotVersion>( *(<extension>(.(?!</snapshotVersion>))*</extension>|<value>(.(?!</snapshotVersion>))*</value>|<updated>(.(?!</snapshotVersion>))*</updated>|<classifier>(.(?!</snapshotVersion>))*</classifier>) *)*</snapshotVersion>");
         Pattern pattern = Pattern.compile("<snapshotVersion> *(.(?!(</snapshotVersion>)))* *</snapshotVersion>");
         Matcher matcher = pattern.matcher(result);
         int index = 0;
         while (matcher.find(index) && !found) {
             String snapshotVersion = matcher.group().trim();
-//            System.err.println(snapshotVersion);
-
             if ((!snapshotVersion.contains(snapshotVersionClassifierMavenTag)
                     || (snapshotVersion.contains(snapshotVersionClassifierMavenTag)
                     && !"sources".equalsIgnoreCase(snapshotVersion.substring(snapshotVersion.indexOf(snapshotVersionClassifierMavenTag) + snapshotVersionClassifierMavenTag.length(), snapshotVersion.indexOf(snapshotVersionClassifierEndMavenTag)))))
                     && snapshotVersion.contains(snapshotVersionValueMavenTag)
                     && snapshotVersion.contains(snapshotVersionUpdatedMavenTag)
-                    /*&& snapshotVersion.contains(snapshotVersionExtensionMavenTag)*/
                     && (!snapshotVersion.contains(snapshotVersionExtensionMavenTag)
                     || artefact.getExtension().equalsIgnoreCase(snapshotVersion.substring(snapshotVersion.indexOf(snapshotVersionExtensionMavenTag) + snapshotVersionExtensionMavenTag.length(), snapshotVersion.indexOf(snapshotVersionExtensionEndMavenTag))))
                     ) {
@@ -120,7 +113,7 @@ public class MavenVersionResolver {
             index += snapshotVersion.length();
         }
 
-        versionResult.setUrl_origin(basePath);
+        versionResult.setUrl_origin(remoteURL);
         versionResult.setNotDeployed(localDeploy);
         if (!found) {
             if (result.contains(timestampMavenTag) && result.contains(timestampEndMavenTag) && result.contains(buildMavenTag) && result.contains(buildEndMavenTag) && result.contains(lastUpdatedMavenTag) && result.contains(lastUpdatedEndMavenTag)) {
@@ -128,15 +121,33 @@ public class MavenVersionResolver {
                 versionResult.setLastUpdate(result.substring(result.indexOf(lastUpdatedMavenTag) + lastUpdatedMavenTag.length(), result.indexOf(lastUpdatedEndMavenTag)));
                 return versionResult;
             } else {
-            return null;
+                return null;
             }
         } else {
             return versionResult;
         }
     }
 
+    private File buildCacheFile(MavenArtefact artefact, String basePath, String remoteURL) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(basePath);
+        String sep = File.separator;
+        if (!basePath.endsWith(sep)) {
+            builder.append(sep);
+        }
+        builder.append(artefact.getGroup().replace(".", File.separator));
+        builder.append(sep);
+        builder.append(artefact.getName());
+        builder.append(sep);
+        builder.append(metaFile);
+        builder.append("-");
+        String cleaned = remoteURL.replace("/", "_").replace(":", "_").replace(".", "_");
+        builder.append(cleaned);
+        return new File(builder.toString());
+    }
 
-    public String foundRelevantVersion(MavenArtefact artefact, String basePath, boolean localDeploy) {
+
+    public String foundRelevantVersion(MavenArtefact artefact, String cachePath, String remoteURL, boolean localDeploy) {
         String askedVersion = artefact.getVersion().toLowerCase();
         Boolean release = false;
         Boolean lastest = false;
@@ -151,15 +162,15 @@ public class MavenVersionResolver {
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.append(basePath);
+        builder.append(remoteURL);
         String sep = File.separator;
-        if (basePath.startsWith("http")) {
+        if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
             sep = "/";
         }
-        if (!basePath.endsWith(sep)) {
+        if (!remoteURL.endsWith(sep)) {
             builder.append(sep);
         }
-        if (basePath.startsWith("http")) {
+        if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
             builder.append(artefact.getGroup().replace(".", "/"));
         } else {
             builder.append(artefact.getGroup().replace(".", File.separator));
@@ -173,38 +184,90 @@ public class MavenVersionResolver {
         } else {
             builder.append(metaFile);
         }
+        File cacheFile = null;
+        FileWriter resultBuilder = null;
+        if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
+            cacheFile = buildCacheFile(artefact, cachePath, remoteURL);
+        }
+        StringBuffer buffer = new StringBuffer();
         try {
             URL metadataURL = new URL("file:///" + builder.toString());
-            if (basePath.startsWith("http")) {
+            if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
                 metadataURL = new URL(builder.toString());
             }
             URLConnection c = metadataURL.openConnection();
-
             c.setRequestProperty("User-Agent", "Kevoree");
-
             InputStream in = c.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            StringBuilder resultBuilder = new StringBuilder();
             String line = reader.readLine();
-            resultBuilder.append(line);
-            while ((line = reader.readLine()) != null) {
+            if (line != null) {
+                if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
+                    try {
+                        resultBuilder = new FileWriter(cacheFile);
+                    } catch (IOException e) {
+                        Log.error("Can't create cache file {}", e, cacheFile.getAbsolutePath());
+                    }
+                }
+            }
+            buffer.append(line);
+            buffer.append("\n");
+            if (resultBuilder != null) {
                 resultBuilder.append(line);
+                resultBuilder.append("\n");
             }
-            String result = resultBuilder.toString();
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+                buffer.append("\n");
+                if (resultBuilder != null) {
+                    resultBuilder.append(line);
+                    resultBuilder.append("\n");
+                }
+            }
             in.close();
-            if (release) {
-                if (result.contains(buildReleaseTag) && result.contains(buildEndreleaseTag)) {
-                    return result.substring(result.indexOf(buildReleaseTag) + buildReleaseTag.length(), result.indexOf(buildEndreleaseTag));
-                }
-            }
-            if (lastest) {
-                if (result.contains(buildLatestTag) && result.contains(buildEndLatestTag)) {
-                    return result.substring(result.indexOf(buildLatestTag) + buildLatestTag.length(), result.indexOf(buildEndLatestTag));
-                }
+            if (resultBuilder != null) {
+                resultBuilder.flush();
+                resultBuilder.close();
             }
         } catch (MalformedURLException ignored) {
         } catch (IOException ignored) {
+        } finally {
+            String flatFile = null;
+            if (buffer.length() != 0) {
+                flatFile = buffer.toString();
+            } else {
+                if (cacheFile != null && cacheFile.exists()) {
+                    BufferedReader br;
+                    try {
+                        br = new BufferedReader(new FileReader(cacheFile));
+                        String sCurrentLine;
+                        while ((sCurrentLine = br.readLine()) != null) {
+                            buffer.append(sCurrentLine);
+                            buffer.append("\n");
+                        }
+                        flatFile = buffer.toString();
+                    } catch (Exception e) {
+                        Log.error("Maven Resolver internal error !", e);
+                    }
+                } else {
+                    return null;
+                }
+            }
+            try {
+                if (release) {
+                    if (flatFile.contains(buildReleaseTag) && flatFile.contains(buildEndreleaseTag)) {
+                        return flatFile.substring(flatFile.indexOf(buildReleaseTag) + buildReleaseTag.length(), flatFile.indexOf(buildEndreleaseTag));
+                    }
+                }
+                if (lastest) {
+                    if (flatFile.contains(buildLatestTag) && flatFile.contains(buildEndLatestTag)) {
+                        return flatFile.substring(flatFile.indexOf(buildLatestTag) + buildLatestTag.length(), flatFile.indexOf(buildEndLatestTag));
+                    }
+                }
+            } catch (Exception e) {
+                Log.error("Maven Resolver internal error !", e);
+            }
         }
+
         return null;
     }
 

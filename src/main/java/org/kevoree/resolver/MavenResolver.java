@@ -65,15 +65,15 @@ public class MavenResolver {
         artefact.setExtension(extension);
 
         if (artefact.getVersion().equalsIgnoreCase("release") || artefact.getVersion().equalsIgnoreCase("latest")) {
-            String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath, false);
-            String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath, true);
+            String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath,basePath, false);
+            String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath,basePath, true);
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vremoteSaved));
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vlocalSaved));
 
             ExecutorService pool = Executors.newCachedThreadPool();
             List<Callable<String>> callables = new ArrayList<Callable<String>>();
             for (final String url : urls) {
-                callables.add(new AsyncVersionFiller(versionResolver, artefact, url));
+                callables.add(new AsyncVersionFiller(versionResolver, artefact,basePath, url));
             }
             try {
                 List<Future<String>> results = pool.invokeAll(callables);
@@ -183,10 +183,6 @@ public class MavenResolver {
                     if (!preresolvedVersion.startsWith(firstPartVersion)) {
                     preresolvedVersion = firstPartVersion + bestVersion.getValue();
                     }
-                    /*if (bestVersion.getBuildNumber() != null) {
-                        preresolvedVersion = preresolvedVersion + "-";
-                        preresolvedVersion = preresolvedVersion + bestVersion.getBuildNumber();
-                    }*/
                     if (bestVersion.getUrl_origin().equals(basePath)) {
                         //resolve locally
                         StringBuilder basePathBuilderSnapshot = getArtefactLocalBasePath(artefact);
