@@ -13,7 +13,7 @@ import java.util.List;
  * Date: 21/05/13
  * Time: 14:57
  */
-public class MavenResolverTester {
+public class MavenResolverTest {
 
     @Test
     public void testLocalResolution() {

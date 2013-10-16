@@ -15,7 +15,7 @@ import java.util.Arrays;
  * @author Erwan Daubert
  * @version 1.0
  */
-public class MavenVersionResolverTester {
+public class MavenVersionResolverTest {
 
     @Test
     public void testfoundMaxVersion() throws IOException {

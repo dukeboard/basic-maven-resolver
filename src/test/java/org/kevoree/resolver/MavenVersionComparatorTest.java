@@ -12,7 +12,7 @@ import org.kevoree.resolver.util.MavenVersionComparator;
  * @author Erwan Daubert
  * @version 1.0
  */
-public class MavenVersionComparatorTester {
+public class MavenVersionComparatorTest {
 
     @Test
     public void compareEqualsVersionRelease() {
