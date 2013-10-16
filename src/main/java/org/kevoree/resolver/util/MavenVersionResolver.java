@@ -188,6 +188,7 @@ public class MavenVersionResolver {
         FileWriter resultBuilder = null;
         if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
             cacheFile = buildCacheFile(artefact, cachePath, remoteURL);
+            cacheFile.getParentFile().mkdirs();
         }
         StringBuffer buffer = new StringBuffer();
         try {
