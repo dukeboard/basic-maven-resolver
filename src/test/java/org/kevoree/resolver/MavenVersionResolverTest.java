@@ -26,7 +26,7 @@ public class MavenVersionResolverTest {
 
         File result2 = resolver.resolve("org.kevoree","org.kevoree.core","RELEASE","jar", Arrays.asList("http://repo1.maven.org/maven2"));
         System.out.println(result2.getAbsolutePath());
-        Assert.assertTrue("RELEASE", !result2.getAbsolutePath().contains("SNAPSHOT") && result2.getAbsolutePath().equals(result.getAbsolutePath()));
+        Assert.assertTrue("RELEASE", !result2.getAbsolutePath().contains("SNAPSHOT"));
 
 
 
