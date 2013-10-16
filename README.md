@@ -12,7 +12,7 @@ So this minimal resolver aims a performing one only task, resolve a artefact rem
 
 With an only on dependency (only one class as a logger) this minimal resolver can be resued in many projects. It's easy embedded and tested Java JVM, or a Dalvik VM.
 
-## How to use ? (Last version : 1)
+## How to use ? (Last version : 2)
 
     <dependency>
         <groupId>org.kevoree</groupId>
