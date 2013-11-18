@@ -264,6 +264,28 @@ public class MavenVersionResolver {
                         return flatFile.substring(flatFile.indexOf(buildLatestTag) + buildLatestTag.length(), flatFile.indexOf(buildEndLatestTag));
                     }
                 }
+                //still not resolve try the local resolution
+                if(localDeploy){
+                    Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
+                    Matcher matcher = pattern.matcher(flatFile);
+                    String bestVersion = "-1";
+                    while (matcher.find()) {
+                        Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
+                        Matcher matcher2 = patternVersion.matcher(matcher.group());
+                        while (matcher2.find()) {
+                            for(int i=2;i<matcher2.groupCount();i++){
+                                String loopVersion = matcher2.group(i).trim();
+                                if(release){
+                                    if(!loopVersion.toLowerCase().contains("snapshot")){
+                                        bestVersion = MavenVersionComparator.max(bestVersion,loopVersion);
+                                    }
+                                } else {
+                                    bestVersion = MavenVersionComparator.max(bestVersion,loopVersion);
+                                }
+                            }
+                        }
+                    }
+                }
             } catch (Exception e) {
                 Log.error("Maven Resolver internal error !", e);
             }
