@@ -77,10 +77,7 @@ public class MavenVersionResolver {
             metadataURL = new URL(builder.toString());
         }
         URLConnection c = metadataURL.openConnection();
-
         c.setRequestProperty("User-Agent", "Kevoree");
-
-
         InputStream in = c.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder resultBuilder = new StringBuilder();
@@ -265,7 +262,9 @@ public class MavenVersionResolver {
                     }
                 }
                 //still not resolve try the local resolution
-                if(localDeploy){
+
+                if (localDeploy) {
+
                     Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
                     Matcher matcher = pattern.matcher(flatFile);
                     String bestVersion = "-1";
@@ -273,17 +272,21 @@ public class MavenVersionResolver {
                         Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
                         Matcher matcher2 = patternVersion.matcher(matcher.group());
                         while (matcher2.find()) {
-                            for(int i=2;i<matcher2.groupCount();i++){
+                            for (int i = 2; i < matcher2.groupCount(); i++) {
                                 String loopVersion = matcher2.group(i).trim();
-                                if(release){
-                                    if(!loopVersion.toLowerCase().contains("snapshot")){
-                                        bestVersion = MavenVersionComparator.max(bestVersion,loopVersion);
+                                if (release) {
+                                    if (!loopVersion.toLowerCase().contains("snapshot")) {
+                                        bestVersion = MavenVersionComparator.max(bestVersion, loopVersion);
                                     }
                                 } else {
-                                    bestVersion = MavenVersionComparator.max(bestVersion,loopVersion);
+                                    bestVersion = MavenVersionComparator.max(bestVersion, loopVersion);
                                 }
                             }
                         }
+                    }
+
+                    if (!bestVersion.equals("-1")) {
+                        return bestVersion;
                     }
                 }
             } catch (Exception e) {

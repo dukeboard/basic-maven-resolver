@@ -69,7 +69,6 @@ public class MavenResolver {
             String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath,basePath, true);
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vremoteSaved));
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vlocalSaved));
-
             ExecutorService pool = Executors.newCachedThreadPool();
             List<Callable<String>> callables = new ArrayList<Callable<String>>();
             for (final String url : urls) {
