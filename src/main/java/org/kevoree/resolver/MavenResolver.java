@@ -41,14 +41,14 @@ public class MavenResolver {
         return builder;
     }
 
-    public File resolve(String url, List<String> urls){
+    public File resolve(String url, List<String> urls) {
         //URL like mvn:groupID:artID:version[:ext]
         String[] parts = url.split(":");
-        if(parts.length == 4 || parts.length == 5){
-            if(parts.length == 5){
-                return resolve(parts[1],parts[2],parts[3],parts[4],urls);
+        if (parts.length == 4 || parts.length == 5) {
+            if (parts.length == 5) {
+                return resolve(parts[1], parts[2], parts[3], parts[4], urls);
             } else {
-               return resolve(parts[1],parts[2],parts[3],"jar",urls);
+                return resolve(parts[1], parts[2], parts[3], "jar", urls);
             }
         } else {
             return null;
@@ -65,14 +65,14 @@ public class MavenResolver {
         artefact.setExtension(extension);
 
         if (artefact.getVersion().equalsIgnoreCase("release") || artefact.getVersion().equalsIgnoreCase("latest")) {
-            String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath,basePath, false);
-            String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath,basePath, true);
+            String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath, basePath, false);
+            String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath, basePath, true);
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vremoteSaved));
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vlocalSaved));
             ExecutorService pool = Executors.newCachedThreadPool();
             List<Callable<String>> callables = new ArrayList<Callable<String>>();
             for (final String url : urls) {
-                callables.add(new AsyncVersionFiller(versionResolver, artefact,basePath, url));
+                callables.add(new AsyncVersionFiller(versionResolver, artefact, basePath, url));
             }
             try {
                 List<Future<String>> results = pool.invokeAll(callables);
@@ -141,7 +141,7 @@ public class MavenResolver {
                     if (r != null) {
                         try {
                             MavenVersionResult interRes = r.get();
-                            if(interRes != null){
+                            if (interRes != null) {
                                 versions.add(interRes);
                             }
                         } catch (ExecutionException e) {
@@ -180,7 +180,7 @@ public class MavenResolver {
                     String preresolvedVersion = bestVersion.getValue();
                     String firstPartVersion = artefact.getVersion().replace("SNAPSHOT", "");
                     if (!preresolvedVersion.startsWith(firstPartVersion)) {
-                    preresolvedVersion = firstPartVersion + bestVersion.getValue();
+                        preresolvedVersion = firstPartVersion + bestVersion.getValue();
                     }
                     if (bestVersion.getUrl_origin().equals(basePath)) {
                         //resolve locally
@@ -243,11 +243,15 @@ public class MavenResolver {
                         if (targetSnapshotFile.exists()) {
                             return targetSnapshotFile;
                         } else {
-
                             if (downloader.download(targetSnapshotFile, bestVersion.getUrl_origin(), artefact, extension, preresolvedVersion, false)) {
-                                Log.info("File resolved remotly, download metafile");
+                                Log.info("File resolved remotely, download metaFile");
                                 //download the metafile
-                                File newMetaFile = new File(targetSnapshotFile.getAbsolutePath().substring(0, targetSnapshotFile.getAbsolutePath().lastIndexOf("/")) + "/" + MavenVersionResolver.metaFile);
+                                String targetPath = targetSnapshotFile.getAbsolutePath();
+                                if (targetPath.contains(File.separator)) {
+                                    targetPath = targetPath.substring(0, targetPath.lastIndexOf(File.separator));
+                                }
+                                targetPath = targetPath + File.separator + MavenVersionResolver.metaFile;
+                                File newMetaFile = new File(targetPath);
                                 downloader.download(newMetaFile, bestVersion.getUrl_origin(), artefact, extension, preresolvedVersion, true);
                                 return targetSnapshotFile;
                             }
