@@ -19,6 +19,12 @@ import java.util.concurrent.*;
  */
 public class MavenResolver {
 
+    public MavenResolver(){
+        if (System.getProperty("o") != null || System.getProperty("offline") != null) {
+            Log.info("Maven resolver is in offline mode");
+        }
+    }
+
     private String basePath = System.getProperty("user.home").toString() + File.separator + ".m2" + File.separator + "repository";
     private static final String SNAPSHOT_VERSION_END = "-SNAPSHOT";
     private MavenArtefactDownloader downloader = new MavenArtefactDownloader();
@@ -56,7 +62,12 @@ public class MavenResolver {
     }
 
 
-    public File resolve(String group, String name, String versionAsked, String extension, List<String> urls) {
+    public File resolve(String group, String name, String versionAsked, String extension, List<String> paramURLS) {
+
+        List<String> urls = paramURLS;
+        if (System.getProperty("o") != null || System.getProperty("offline") != null) {
+            urls = new ArrayList<String>(); //in offline mode we don't consider any urls
+        }
 
         final MavenArtefact artefact = new MavenArtefact();
         artefact.setGroup(group);
