@@ -8,7 +8,9 @@ import org.kevoree.resolver.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -47,7 +49,7 @@ public class MavenResolver {
         return builder;
     }
 
-    public File resolve(String url, List<String> urls) {
+    public File resolve(String url, Set<String> urls) {
         //URL like mvn:groupID:artID:version[:ext]
         String[] parts = url.split(":");
         if (parts.length == 4 || parts.length == 5) {
@@ -57,16 +59,17 @@ public class MavenResolver {
                 return resolve(parts[1], parts[2], parts[3], "jar", urls);
             }
         } else {
+            Log.error("Malformed url : "+url);
             return null;
         }
     }
 
 
-    public File resolve(String group, String name, String versionAsked, String extension, List<String> paramURLS) {
+    public File resolve(String group, String name, String versionAsked, String extension, Set<String> paramURLS) {
 
-        List<String> urls = paramURLS;
+        Set<String> urls = paramURLS;
         if (System.getProperty("o") != null || System.getProperty("offline") != null) {
-            urls = new ArrayList<String>(); //in offline mode we don't consider any urls
+            urls = new HashSet<String>(); //in offline mode we don't consider any urls
         }
 
         final MavenArtefact artefact = new MavenArtefact();
