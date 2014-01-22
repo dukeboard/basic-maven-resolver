@@ -274,7 +274,7 @@ public class MavenResolver {
                                 if (downloader.download(snapshotFile, url, artefact, extension, preresolvedVersion2, false)) {
                                     //download the metafile
                                     Log.info("File resolved remotly, download metafile");
-                                    File newMetaFile = new File(snapshotFile.getAbsolutePath().substring(0, snapshotFile.getAbsolutePath().lastIndexOf("/")) + "/" + MavenVersionResolver.metaFile);
+                                    File newMetaFile = new File(snapshotFile.getAbsolutePath().substring(0, snapshotFile.getAbsolutePath().lastIndexOf(File.separator)) + File.separator + MavenVersionResolver.metaFile);
                                     downloader.download(newMetaFile, url, artefact, extension, preresolvedVersion2, true);
                                     return snapshotFile;
                                 }

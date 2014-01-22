@@ -8,10 +8,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -320,12 +316,13 @@ public class MavenVersionResolver {
 
                 if (localDeploy) {
 
-                    Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
-                    Matcher matcher = pattern.matcher(flatFile);
                     String bestVersion = "-1";
-                    while (matcher.find()) {
+                    //Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
+                    /*Pattern pattern = Pattern.compile("<versions>.+?</versions>", Pattern.DOTALL);
+                    Matcher matcher = pattern.matcher(flatFile);
+                    while (matcher.find()) {*/
                         Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
-                        Matcher matcher2 = patternVersion.matcher(matcher.group());
+                        Matcher matcher2 = patternVersion.matcher(flatFile);
                         while (matcher2.find()) {
                             for (int i = 2; i < matcher2.groupCount(); i++) {
                                 String loopVersion = matcher2.group(i).trim();
@@ -338,7 +335,7 @@ public class MavenVersionResolver {
                                 }
                             }
                         }
-                    }
+                    //}
 
                     if (!bestVersion.equals("-1")) {
                         return bestVersion;
