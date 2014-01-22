@@ -7,10 +7,7 @@ import org.kevoree.resolver.util.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -21,7 +18,7 @@ import java.util.concurrent.*;
  */
 public class MavenResolver {
 
-    public MavenResolver(){
+    public MavenResolver() {
         if (System.getProperty("o") != null || System.getProperty("offline") != null) {
             Log.info("Maven resolver is in offline mode");
         }
@@ -59,9 +56,47 @@ public class MavenResolver {
                 return resolve(parts[1], parts[2], parts[3], "jar", urls);
             }
         } else {
-            Log.error("Malformed url : "+url);
+            Log.error("Malformed url : " + url);
             return null;
         }
+    }
+
+
+    public SortedSet<String> listVersion(String group, String name, String extension, Set<String> paramURLS) {
+        Set<String> urls = paramURLS;
+        if (System.getProperty("o") != null || System.getProperty("offline") != null) {
+            urls = new HashSet<String>(); //in offline mode we don't consider any urls
+        }
+        final MavenArtefact artefact = new MavenArtefact();
+        artefact.setGroup(group);
+        artefact.setName(name);
+        artefact.setVersion("latest");
+        artefact.setExtension(extension);
+
+        final Comparator<String> comparator = new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                String result = MavenVersionComparator.max(o1,o2);
+                if(result.equals(o1)){
+                    return -1;
+                }
+                if(result.equals(o2)){
+                    return -1;
+                }
+                return 0;
+            }
+        };
+        SortedSet<String> sortedResult = new TreeSet<String>(){
+            @Override
+            public Comparator<? super String> comparator() {
+                return comparator;
+            }
+        };
+        sortedResult.addAll(versionResolver.listVersions(artefact, basePath, basePath, true));
+        for (String url : urls) {
+            sortedResult.addAll(versionResolver.listVersions(artefact, basePath, url, false));
+        }
+        return sortedResult;
     }
 
 
@@ -80,7 +115,7 @@ public class MavenResolver {
 
         if (artefact.getVersion().equalsIgnoreCase("release") || artefact.getVersion().equalsIgnoreCase("latest")) {
             String bestVersion = artefact.getVersion();
-            for(String url : urls){
+            for (String url : urls) {
                 String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath, url, false);
                 bestVersion = MavenVersionComparator.max(artefact.getVersion(), vremoteSaved);
             }

@@ -8,6 +8,12 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +51,53 @@ public class MavenVersionResolver {
 
     public static final String metaFile = "maven-metadata.xml";
     private static final String localmetaFile = "maven-metadata-local.xml";
+
+
+    public Set<String> listVersions(MavenArtefact artefact, String basePath, String remoteURL, boolean localDeploy) {
+        Set<String> versions = new HashSet<String>();
+        //force update of caches
+        try {
+            resolveVersion(artefact, remoteURL, localDeploy);
+        } catch (Exception e) {
+            //ignore
+        }
+        //build directory path
+        StringBuilder builder = new StringBuilder();
+        builder.append(basePath);
+        String sep = File.separator;
+        if (!basePath.endsWith(sep)) {
+            builder.append(sep);
+        }
+        builder.append(artefact.getGroup().replace(".", File.separator));
+        builder.append(sep);
+        builder.append(artefact.getName());
+        File cacheDir = new File(builder.toString());
+        if (cacheDir.exists() && cacheDir.isDirectory()) {
+            for (File child : cacheDir.listFiles()) {
+                try {
+                    if (child.getName().startsWith("maven-metadata")) {
+                        byte[] encoded = Files.readAllBytes(Paths.get(child.getPath()));
+                        String flatFile = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(encoded)).toString();
+                        Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
+                        Matcher matcher = pattern.matcher(flatFile);
+                        while (matcher.find()) {
+                            Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
+                            Matcher matcher2 = patternVersion.matcher(matcher.group());
+                            while (matcher2.find()) {
+                                for (int i = 2; i < matcher2.groupCount(); i++) {
+                                    String loopVersion = matcher2.group(i).trim();
+                                    versions.add(loopVersion);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    //ingore
+                }
+            }
+        }
+        return versions;
+    }
 
     public MavenVersionResult resolveVersion(MavenArtefact artefact, String remoteURL, boolean localDeploy) throws IOException {
 

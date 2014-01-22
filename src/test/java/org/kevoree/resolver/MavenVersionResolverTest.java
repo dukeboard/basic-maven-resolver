@@ -18,9 +18,9 @@ import java.util.Set;
  * @version 1.0
  */
 public class MavenVersionResolverTest {
-    /*
+
     @Test
-    public void toDrop(){
+    public void toDrop() {
         MavenResolver resolver = new MavenResolver();
         Set<String> urls = new HashSet<String>();
         urls.add("http://repo1.maven.org/maven2/");
@@ -28,7 +28,13 @@ public class MavenVersionResolverTest {
 
         File kevoreeBase = resolver.resolve("org.kevoree.platform", "org.kevoree.platform.standalone", "release", "jar", urls);
         System.out.println(kevoreeBase.getAbsolutePath());
-    }*/
+
+
+        Set<String> versions = resolver.listVersion("org.kevoree.platform", "org.kevoree.platform.standalone", "jar", urls);
+        for(String s : versions){
+            System.out.println(">"+s);
+        }
+    }
 
 
     @Test
@@ -37,20 +43,19 @@ public class MavenVersionResolverTest {
 
         HashSet<String> sona = new HashSet<String>();
         sona.add("http://oss.sonatype.org/content/groups/public");
-        File result = resolver.resolve("org.kevoree","org.kevoree.core","RELEASE","jar", sona);
+        File result = resolver.resolve("org.kevoree", "org.kevoree.core", "RELEASE", "jar", sona);
         System.out.println(result.getAbsolutePath());
         Assert.assertTrue("RELEASE", !result.getAbsolutePath().contains("SNAPSHOT"));
 
         HashSet<String> central = new HashSet<String>();
         central.add("http://repo1.maven.org/maven2");
 
-        File result2 = resolver.resolve("org.kevoree","org.kevoree.core","RELEASE","jar", central);
+        File result2 = resolver.resolve("org.kevoree", "org.kevoree.core", "RELEASE", "jar", central);
         System.out.println(result2.getAbsolutePath());
         Assert.assertTrue("RELEASE", !result2.getAbsolutePath().contains("SNAPSHOT"));
 
 
-
-        File result3 = resolver.resolve("org.kevoree","org.kevoree.core","LATEST","jar", sona);
+        File result3 = resolver.resolve("org.kevoree", "org.kevoree.core", "LATEST", "jar", sona);
         System.out.println(result3.getCanonicalPath());
         Assert.assertTrue("SNAPSHOT", result3.getAbsolutePath().contains("SNAPSHOT"));
 
