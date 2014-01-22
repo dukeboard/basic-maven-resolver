@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User: Erwan Daubert - erwan.daubert@gmail.com
@@ -17,6 +18,18 @@ import java.util.HashSet;
  * @version 1.0
  */
 public class MavenVersionResolverTest {
+    /*
+    @Test
+    public void toDrop(){
+        MavenResolver resolver = new MavenResolver();
+        Set<String> urls = new HashSet<String>();
+        urls.add("http://repo1.maven.org/maven2/");
+        urls.add("https://oss.sonatype.org/content/groups/public/");
+
+        File kevoreeBase = resolver.resolve("org.kevoree.platform", "org.kevoree.platform.standalone", "release", "jar", urls);
+        System.out.println(kevoreeBase.getAbsolutePath());
+    }*/
+
 
     @Test
     public void testfoundMaxVersion() throws IOException {
@@ -24,9 +37,6 @@ public class MavenVersionResolverTest {
 
         HashSet<String> sona = new HashSet<String>();
         sona.add("http://oss.sonatype.org/content/groups/public");
-
-
-
         File result = resolver.resolve("org.kevoree","org.kevoree.core","RELEASE","jar", sona);
         System.out.println(result.getAbsolutePath());
         Assert.assertTrue("RELEASE", !result.getAbsolutePath().contains("SNAPSHOT"));

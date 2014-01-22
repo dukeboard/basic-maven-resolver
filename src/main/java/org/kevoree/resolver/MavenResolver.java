@@ -79,10 +79,12 @@ public class MavenResolver {
         artefact.setExtension(extension);
 
         if (artefact.getVersion().equalsIgnoreCase("release") || artefact.getVersion().equalsIgnoreCase("latest")) {
+            String bestVersion = artefact.getVersion();
             for(String url : urls){
                 String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath, url, false);
-                artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vremoteSaved));
+                bestVersion = MavenVersionComparator.max(artefact.getVersion(), vremoteSaved);
             }
+            artefact.setVersion(bestVersion);
             String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath, basePath, true);
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vlocalSaved));
             ExecutorService pool = Executors.newCachedThreadPool();

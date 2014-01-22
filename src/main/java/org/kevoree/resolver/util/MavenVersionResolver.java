@@ -154,6 +154,7 @@ public class MavenVersionResolver {
         if (askedVersion.equalsIgnoreCase("latest")) {
             lastest = true;
         }
+
         if (!release && !lastest) {
             return null;
         }
