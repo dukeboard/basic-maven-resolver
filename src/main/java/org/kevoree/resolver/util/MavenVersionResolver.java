@@ -76,8 +76,13 @@ public class MavenVersionResolver {
             for (File child : cacheDir.listFiles()) {
                 try {
                     if (child.getName().startsWith("maven-metadata")) {
-                        byte[] encoded = Files.readAllBytes(Paths.get(child.getPath()));
-                        String flatFile = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(encoded)).toString();
+                        StringBuffer stringBuffer = new StringBuffer();
+                        BufferedReader bufferedReader = new BufferedReader(new FileReader(child));
+                        String line = null;
+                        while((line =bufferedReader.readLine())!=null){
+                            stringBuffer.append(line).append("\n");
+                        }
+                        String flatFile = stringBuffer.toString();
                         Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
                         Matcher matcher = pattern.matcher(flatFile);
                         while (matcher.find()) {
