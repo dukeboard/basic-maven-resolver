@@ -48,12 +48,11 @@ public class MavenVersionResolver {
     public static final String metaFile = "maven-metadata.xml";
     private static final String localmetaFile = "maven-metadata-local.xml";
 
-
     public Set<String> listVersions(MavenArtefact artefact, String basePath, String remoteURL, boolean localDeploy) {
         Set<String> versions = new HashSet<String>();
         //force update of caches
         try {
-            resolveVersion(artefact, remoteURL, localDeploy);
+            foundRelevantVersion(artefact,basePath, remoteURL, localDeploy);
         } catch (Exception e) {
             //ignore
         }

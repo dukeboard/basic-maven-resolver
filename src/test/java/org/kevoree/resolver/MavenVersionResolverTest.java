@@ -24,10 +24,10 @@ public class MavenVersionResolverTest {
         MavenResolver resolver = new MavenResolver();
         Set<String> urls = new HashSet<String>();
         urls.add("http://repo1.maven.org/maven2/");
-        urls.add("https://oss.sonatype.org/content/groups/public/");
+       // urls.add("https://oss.sonatype.org/content/groups/public/");
 
-        File kevoreeBase = resolver.resolve("org.kevoree.platform", "org.kevoree.platform.standalone", "release", "jar", urls);
-        System.out.println(kevoreeBase.getAbsolutePath());
+       // File kevoreeBase = resolver.resolve("org.kevoree.platform", "org.kevoree.platform.standalone", "latest", "jar", urls);
+    //    System.out.println(kevoreeBase.getAbsolutePath());
 
 
         Set<String> versions = resolver.listVersion("org.kevoree.platform", "org.kevoree.platform.standalone", "jar", urls);

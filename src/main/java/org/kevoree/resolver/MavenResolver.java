@@ -67,6 +67,7 @@ public class MavenResolver {
         if (System.getProperty("o") != null || System.getProperty("offline") != null) {
             urls = new HashSet<String>(); //in offline mode we don't consider any urls
         }
+
         final MavenArtefact artefact = new MavenArtefact();
         artefact.setGroup(group);
         artefact.setName(name);
