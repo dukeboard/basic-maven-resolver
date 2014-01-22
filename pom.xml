@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree</groupId>
     <artifactId>org.kevoree.maven.resolver</artifactId>
@@ -21,10 +22,10 @@
             <version>${kevoree.log.version}</version>
         </dependency>
     </dependencies>
-	
-	<properties>
+
+    <properties>
         <kevoree.log.version>1</kevoree.log.version>
-	</properties>
+    </properties>
 
     <licenses>
         <license>
@@ -54,6 +55,15 @@
             <email>fouquet.f@gmail.com</email>
             <roles>
                 <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Gregory Nain</name>
+            <id>gregory.nain</id>
+            <email>gregory.nain@gmail.com</email>
+            <roles>
                 <role>developer</role>
             </roles>
             <timezone>+2</timezone>
