@@ -77,21 +77,19 @@ public class MavenResolver {
             @Override
             public int compare(String o1, String o2) {
                 String result = MavenVersionComparator.max(o1,o2);
+                if(o1.equals(o2)){
+                    return 0;
+                }
                 if(result.equals(o1)){
                     return -1;
                 }
                 if(result.equals(o2)){
-                    return -1;
+                    return 1;
                 }
-                return 0;
+                return -1;
             }
         };
-        SortedSet<String> sortedResult = new TreeSet<String>(){
-            @Override
-            public Comparator<? super String> comparator() {
-                return comparator;
-            }
-        };
+        SortedSet<String> sortedResult = new TreeSet<String>(comparator);
         sortedResult.addAll(versionResolver.listVersions(artefact, basePath, basePath, true));
         for (String url : urls) {
             sortedResult.addAll(versionResolver.listVersions(artefact, basePath, url, false));
