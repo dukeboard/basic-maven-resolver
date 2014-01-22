@@ -83,16 +83,12 @@ public class MavenVersionResolver {
                             stringBuffer.append(line).append("\n");
                         }
                         String flatFile = stringBuffer.toString();
-                        Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
-                        Matcher matcher = pattern.matcher(flatFile);
-                        while (matcher.find()) {
-                            Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
-                            Matcher matcher2 = patternVersion.matcher(matcher.group());
-                            while (matcher2.find()) {
-                                for (int i = 2; i < matcher2.groupCount(); i++) {
-                                    String loopVersion = matcher2.group(i).trim();
-                                    versions.add(loopVersion);
-                                }
+                        Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
+                        Matcher matcher2 = patternVersion.matcher(flatFile);
+                        while (matcher2.find()) {
+                            for (int i = 2; i < matcher2.groupCount(); i++) {
+                                String loopVersion = matcher2.group(i).trim();
+                                versions.add(loopVersion);
                             }
                         }
                     }
