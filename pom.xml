@@ -3,7 +3,7 @@
     <groupId>org.kevoree</groupId>
     <artifactId>org.kevoree.maven.resolver</artifactId>
     <packaging>jar</packaging>
-    <version>16</version>
+    <version>17-SNAPSHOT</version>
     <name>Kevoree :: Resolver</name>
     <url>https://github.com/dukeboard/basic-maven-resolver.git</url>
     <description>Kevoree :: Basic-maven-resolver</description>
