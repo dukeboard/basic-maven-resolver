@@ -29,11 +29,16 @@ public class MavenVersionResolverTest {
        // File kevoreeBase = resolver.resolve("org.kevoree.platform", "org.kevoree.platform.standalone", "latest", "jar", urls);
     //    System.out.println(kevoreeBase.getAbsolutePath());
 
-
+          /*
         Set<String> versions = resolver.listVersion("org.kevoree.platform", "org.kevoree.platform.standalone", "jar", urls);
         for(String s : versions){
             System.out.println(">"+s);
-        }
+        }*/
+
+
+        File kevoreeEditor = resolver.resolve("org.kevoree.tools", "org.kevoree.tools.ui.editor", "latest", "jar",urls);
+        System.out.println(kevoreeEditor);
+
     }
 
 

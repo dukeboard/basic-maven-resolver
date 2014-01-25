@@ -52,7 +52,7 @@ public class MavenVersionResolver {
         Set<String> versions = new HashSet<String>();
         //force update of caches
         try {
-            foundRelevantVersion(artefact,basePath, remoteURL, localDeploy);
+            foundRelevantVersion(artefact, basePath, remoteURL, localDeploy);
         } catch (Exception e) {
             //ignore
         }
@@ -74,7 +74,7 @@ public class MavenVersionResolver {
                         StringBuffer stringBuffer = new StringBuffer();
                         BufferedReader bufferedReader = new BufferedReader(new FileReader(child));
                         String line = null;
-                        while((line =bufferedReader.readLine())!=null){
+                        while ((line = bufferedReader.readLine()) != null) {
                             stringBuffer.append(line).append("\n");
                         }
                         String flatFile = stringBuffer.toString();
@@ -314,26 +314,25 @@ public class MavenVersionResolver {
                 //still not resolve try the local resolution
 
                 if (localDeploy) {
-
                     String bestVersion = "-1";
                     //Pattern pattern = Pattern.compile("<versions>(\\s|.)*</versions>");
                     /*Pattern pattern = Pattern.compile("<versions>.+?</versions>", Pattern.DOTALL);
                     Matcher matcher = pattern.matcher(flatFile);
                     while (matcher.find()) {*/
-                        Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
-                        Matcher matcher2 = patternVersion.matcher(flatFile);
-                        while (matcher2.find()) {
-                            for (int i = 2; i < matcher2.groupCount(); i++) {
-                                String loopVersion = matcher2.group(i).trim();
-                                if (release) {
-                                    if (!loopVersion.toLowerCase().contains("snapshot")) {
-                                        bestVersion = MavenVersionComparator.max(bestVersion, loopVersion);
-                                    }
-                                } else {
+                    Pattern patternVersion = Pattern.compile("(<version>)((\\d|\\w|[-]|\\S)*)</version>");
+                    Matcher matcher2 = patternVersion.matcher(flatFile);
+                    while (matcher2.find()) {
+                        for (int i = 2; i < matcher2.groupCount(); i++) {
+                            String loopVersion = matcher2.group(i).trim();
+                            if (release) {
+                                if (!loopVersion.toLowerCase().contains("snapshot")) {
                                     bestVersion = MavenVersionComparator.max(bestVersion, loopVersion);
                                 }
+                            } else {
+                                bestVersion = MavenVersionComparator.max(bestVersion, loopVersion);
                             }
                         }
+                    }
                     //}
 
                     if (!bestVersion.equals("-1")) {
