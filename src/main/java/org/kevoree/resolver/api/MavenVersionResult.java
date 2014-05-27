@@ -43,13 +43,13 @@ public class MavenVersionResult {
         try {
             return Long.parseLong(lastUpdate) < Long.parseLong(remote.lastUpdate);
         } catch (Exception e) {
-            org.kevoree.log.Log.error("Bad artefact timestamp",e);
+            org.kevoree.log.Log.error("Bad artefact timestamp", e);
             return false;
         }
     }
 
-    public String toString(){
-        return value+"@"+url_origin;
+    public String toString() {
+        return value + "@" + url_origin;
     }
 
     private boolean notDeployed = false;

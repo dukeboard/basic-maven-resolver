@@ -36,7 +36,9 @@ public class MavenArtefactDownloader {
             //BUILD HTTP URL
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(url);
-            urlBuilder.append(urlSep);
+            if(!url.endsWith(urlSep)){
+                urlBuilder.append(urlSep);
+            }
             urlBuilder.append(artefact.getGroup().replace(".", "/"));
             urlBuilder.append(urlSep);
             urlBuilder.append(artefact.getName());
@@ -56,6 +58,9 @@ public class MavenArtefactDownloader {
                 urlBuilder.append(".");
                 urlBuilder.append(extension);
             }
+
+
+            System.out.println(urlBuilder.toString());
 
             //DOWNLOAD FILE
             URL artefactURL = new URL(urlBuilder.toString());
