@@ -289,6 +289,9 @@ public class MavenVersionComparator {
         if(v2 != null && v1 == null){
             return v2;
         }
+        if(v1 == null && v2 == null){
+            return null;
+        }
         ListItem v1c = parseVersion(v1);
         ListItem v2c = parseVersion(v2);
         if(v1c.compareTo(v2c) > 0){
