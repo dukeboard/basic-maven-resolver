@@ -77,14 +77,14 @@ public class MavenResolver {
         final Comparator<String> comparator = new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
-                String result = MavenVersionComparator.max(o1,o2);
-                if(o1.equals(o2)){
+                String result = MavenVersionComparator.max(o1, o2);
+                if (o1.equals(o2)) {
                     return 0;
                 }
-                if(result.equals(o1)){
+                if (result.equals(o1)) {
                     return -1;
                 }
-                if(result.equals(o2)){
+                if (result.equals(o2)) {
                     return 1;
                 }
                 return -1;
@@ -113,11 +113,23 @@ public class MavenResolver {
         artefact.setExtension(extension);
 
         if (artefact.getVersion().equalsIgnoreCase("release") || artefact.getVersion().equalsIgnoreCase("latest")) {
-            String bestVersion = artefact.getVersion();
+            Set<String> caches = versionResolver.cacheFiles(artefact, basePath);
+            String bestVersion = null;
             for (String url : urls) {
+                File cacheFile = versionResolver.buildCacheFile(artefact, basePath, url);
+                caches.remove(cacheFile.getAbsolutePath());
                 String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath, url, false);
-                bestVersion = MavenVersionComparator.max(artefact.getVersion(), vremoteSaved);
+                bestVersion = MavenVersionComparator.max(bestVersion, vremoteSaved);
             }
+            //remaining caches
+            for (String cache : caches) {
+                File existingCache = new File(cache);
+                if (existingCache.exists()) {
+                    String vremoteSaved = versionResolver.foundRelevantVersion(artefact, basePath, basePath, false, existingCache);
+                    bestVersion = MavenVersionComparator.max(bestVersion, vremoteSaved);
+                }
+            }
+
             String vlocalSaved = versionResolver.foundRelevantVersion(artefact, basePath, basePath, true);
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), vlocalSaved));
             artefact.setVersion(MavenVersionComparator.max(artefact.getVersion(), bestVersion));
@@ -270,7 +282,7 @@ public class MavenResolver {
                                 preresolvedVersion2 = preresolvedVersion2 + "-";
                                 preresolvedVersion2 = preresolvedVersion2 + bestRemoteVersion.getBuildNumber();
                             }*/
-                            //Ok try on all urls, meta file has been download but bot the artefact :(
+                            //Ok try on all urls, meta file has been download but bot the artifact :(
                             for (String url : urls) {
                                 if (downloader.download(snapshotFile, url, artefact, extension, preresolvedVersion2, false)) {
                                     //download the metafile
@@ -280,7 +292,6 @@ public class MavenResolver {
                                     return snapshotFile;
                                 }
                             }
-                            System.err.println(">" + bestVersion);
                             return null;
                         }
                     } else {

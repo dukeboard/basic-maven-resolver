@@ -8,7 +8,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -174,7 +176,7 @@ public class MavenVersionResolver {
         }
     }
 
-    private File buildCacheFile(MavenArtefact artefact, String basePath, String remoteURL) {
+    public File buildCacheFile(MavenArtefact artefact, String basePath, String remoteURL) {
         StringBuilder builder = new StringBuilder();
         builder.append(basePath);
         String sep = File.separator;
@@ -188,12 +190,41 @@ public class MavenVersionResolver {
         builder.append(metaFile);
         builder.append("-");
         String cleaned = remoteURL.replace("/", "_").replace(":", "_").replace(".", "_");
+        if (cleaned.endsWith("_")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 1);
+        }
         builder.append(cleaned);
         return new File(builder.toString());
     }
 
+    public Set<String> cacheFiles(MavenArtefact artefact, String basePath) {
+        Set<String> cacheFiles = new HashSet<String>();
+        StringBuilder builder = new StringBuilder();
+        builder.append(basePath);
+        String sep = File.separator;
+        if (!basePath.endsWith(sep)) {
+            builder.append(sep);
+        }
+        builder.append(artefact.getGroup().replace(".", File.separator));
+        builder.append(sep);
+        builder.append(artefact.getName());
+        File directory = new File(builder.toString());
+        if (directory.exists() && directory.isDirectory()) {
+            String[] files = directory.list();
+            for (String child : files) {
+                if (child.startsWith(metaFile)) {
+                    cacheFiles.add(builder.toString() + File.separator + child);
+                }
+            }
+        }
+        return cacheFiles;
+    }
 
     public String foundRelevantVersion(MavenArtefact artefact, String cachePath, String remoteURL, boolean localDeploy) {
+        return foundRelevantVersion(artefact, cachePath, remoteURL, localDeploy, null);
+    }
+
+    public String foundRelevantVersion(MavenArtefact artefact, String cachePath, String remoteURL, boolean localDeploy, File cacheFileParam) {
         String askedVersion = artefact.getVersion().toLowerCase();
         Boolean release = false;
         Boolean lastest = false;
@@ -233,48 +264,56 @@ public class MavenVersionResolver {
         }
         File cacheFile = null;
         FileWriter resultBuilder = null;
-        if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
-            cacheFile = buildCacheFile(artefact, cachePath, remoteURL);
-            cacheFile.getParentFile().mkdirs();
+        if (cacheFileParam != null) {
+            cacheFile = cacheFileParam;
+        } else {
+            if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
+                cacheFile = buildCacheFile(artefact, cachePath, remoteURL);
+                cacheFile.getParentFile().mkdirs();
+            }
         }
+
         StringBuffer buffer = new StringBuffer();
         try {
-            URL metadataURL = new URL("file:///" + builder.toString());
-            if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
-                metadataURL = new URL(builder.toString());
-            }
-            URLConnection c = metadataURL.openConnection();
-            c.setRequestProperty("User-Agent", "Kevoree");
-            InputStream in = c.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            String line = reader.readLine();
-            if (line != null) {
-                if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
-                    try {
-                        resultBuilder = new FileWriter(cacheFile);
-                    } catch (IOException e) {
-                        Log.error("Can't create cache file {}", e, cacheFile.getAbsolutePath());
+            if (cacheFileParam == null) {
+                URL metadataURL = new URL("file:///" + builder.toString());
+                if (remoteURL.startsWith("http") || remoteURL.startsWith("https")) {
+                    metadataURL = new URL(builder.toString());
+                }
+                URLConnection c = metadataURL.openConnection();
+                c.setRequestProperty("User-Agent", "Kevoree");
+                InputStream in = c.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                String line = reader.readLine();
+                if (line != null) {
+                    if (remoteURL.startsWith("http://") || remoteURL.startsWith("https://")) {
+                        try {
+                            resultBuilder = new FileWriter(cacheFile);
+                        } catch (IOException e) {
+                            Log.error("Can't create cache file {}", e, cacheFile.getAbsolutePath());
+                        }
                     }
                 }
-            }
-            buffer.append(line);
-            buffer.append("\n");
-            if (resultBuilder != null) {
-                resultBuilder.append(line);
-                resultBuilder.append("\n");
-            }
-            while ((line = reader.readLine()) != null) {
                 buffer.append(line);
                 buffer.append("\n");
                 if (resultBuilder != null) {
                     resultBuilder.append(line);
                     resultBuilder.append("\n");
                 }
-            }
-            in.close();
-            if (resultBuilder != null) {
-                resultBuilder.flush();
-                resultBuilder.close();
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line);
+                    buffer.append("\n");
+                    if (resultBuilder != null) {
+                        resultBuilder.append(line);
+                        resultBuilder.append("\n");
+                    }
+                }
+                in.close();
+                if (resultBuilder != null) {
+                    resultBuilder.flush();
+                    resultBuilder.close();
+                }
+
             }
         } catch (MalformedURLException ignored) {
         } catch (IOException ignored) {

@@ -59,9 +59,6 @@ public class MavenArtefactDownloader {
                 urlBuilder.append(extension);
             }
 
-
-            System.out.println(urlBuilder.toString());
-
             //DOWNLOAD FILE
             URL artefactURL = new URL(urlBuilder.toString());
             InputStream in = artefactURL.openStream();

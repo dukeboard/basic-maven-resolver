@@ -1,6 +1,5 @@
 package org.kevoree.resolver;
 
-import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertNotNull;
 
 
 public class MavenVersionResolverTest {
@@ -17,14 +18,19 @@ public class MavenVersionResolverTest {
         MavenResolver resolver = new MavenResolver();
         Set<String> urls = new HashSet<String>();
         urls.add("http://repo1.maven.org/maven2/");
-        File kevoreeEditor = resolver.resolve("org.kevoree.library.java", "org.kevoree.library.java.javaNode", "latest", "jar",urls);
+        File kevoreeJava = resolver.resolve("org.kevoree.library.java", "org.kevoree.library.java.javaNode", "latest", "jar", urls);
 
-        Set<String> sets = resolver.listVersion("org.kevoree.library.java", "org.kevoree.library.java.javaNode", "jar",urls);
-        for(String version : sets){
+        Set<String> sets = resolver.listVersion("org.kevoree.library.java", "org.kevoree.library.java.javaNode", "jar", urls);
+        for (String version : sets) {
             System.out.println(version);
         }
 
-        assertNotNull(kevoreeEditor);
+        assertNotNull(kevoreeJava);
+
+        File kevoreeJava2 = resolver.resolve("org.kevoree.library.java", "org.kevoree.library.java.javaNode", "latest", "jar", new HashSet<String>());
+
+        assertNotNull(kevoreeJava2);
+        System.out.println(kevoreeJava2);
 
     }
 
