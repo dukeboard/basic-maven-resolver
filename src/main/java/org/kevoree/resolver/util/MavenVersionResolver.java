@@ -8,9 +8,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,6 +126,7 @@ public class MavenVersionResolver {
             metadataURL = new URL(builder.toString());
         }
         URLConnection c = metadataURL.openConnection();
+
         c.setRequestProperty("User-Agent", "Kevoree");
         InputStream in = c.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));

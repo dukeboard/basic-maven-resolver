@@ -7,6 +7,7 @@ import org.kevoree.resolver.util.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -47,6 +48,9 @@ public class MavenResolver {
     }
 
     public File resolve(String url, Set<String> urls) {
+
+        HttpURLConnection.setFollowRedirects(true);
+
         //URL like mvn:groupID:artID:version[:ext]
         String[] parts = url.split(":");
         if (parts.length == 4 || parts.length == 5) {
@@ -63,6 +67,9 @@ public class MavenResolver {
 
 
     public SortedSet<String> listVersion(String group, String name, String extension, Set<String> paramURLS) {
+
+        HttpURLConnection.setFollowRedirects(true);
+
         Set<String> urls = paramURLS;
         if (System.getProperty("o") != null || System.getProperty("offline") != null) {
             urls = new HashSet<String>(); //in offline mode we don't consider any urls
@@ -100,6 +107,8 @@ public class MavenResolver {
 
 
     public File resolve(String group, String name, String versionAsked, String extension, Set<String> paramURLS) {
+
+        HttpURLConnection.setFollowRedirects(true);
 
         Set<String> urls = paramURLS;
         if (System.getProperty("o") != null || System.getProperty("offline") != null) {

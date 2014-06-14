@@ -16,6 +16,18 @@ import java.util.List;
  */
 public class MavenResolverTest {
 
+
+    @Test
+    public void testCentralAndLocalResolution2() {
+        MavenResolver resolver = new MavenResolver();
+        HashSet<String> l = new HashSet<String>();
+        l.add("http://oss.sonatype.org/content/groups/public");
+        //l.add("http://repo1.maven.org/maven2/");
+        File resolved2 = resolver.resolve("org.kevoree.library", "org.kevoree.library", "release","pom", l);
+        System.out.println(resolved2);
+    }
+
+
     @Test
     public void testCentralAndLocalResolution() {
         MavenResolver resolver = new MavenResolver();
