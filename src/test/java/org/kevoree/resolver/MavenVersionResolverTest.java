@@ -42,6 +42,7 @@ public class MavenVersionResolverTest {
         File result = resolver.resolve("org.kevoree", "org.kevoree.core", "RELEASE", "jar", sona);
         System.out.println(result.getAbsolutePath());
         Assert.assertTrue("RELEASE", !result.getAbsolutePath().contains("SNAPSHOT"));
+        Assert.assertTrue("RELEASE", !result.getAbsolutePath().contains("RELEASE"));
 
         HashSet<String> central = new HashSet<String>();
         central.add("http://repo1.maven.org/maven2");

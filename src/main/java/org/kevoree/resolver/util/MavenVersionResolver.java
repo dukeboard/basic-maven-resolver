@@ -5,6 +5,7 @@ import org.kevoree.resolver.api.MavenArtefact;
 import org.kevoree.resolver.api.MavenVersionResult;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -126,8 +127,18 @@ public class MavenVersionResolver {
             metadataURL = new URL(builder.toString());
         }
         URLConnection c = metadataURL.openConnection();
-
         c.setRequestProperty("User-Agent", "Kevoree");
+        String location = c.getHeaderField("Location");
+        if(location != null){
+            try {
+                c.getInputStream().close();
+            } catch (Exception e){
+            }
+            c = new URL(location).openConnection();
+            c.setRequestProperty("User-Agent", "Kevoree");
+        }
+
+
         InputStream in = c.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder resultBuilder = new StringBuilder();
@@ -281,6 +292,18 @@ public class MavenVersionResolver {
                 }
                 URLConnection c = metadataURL.openConnection();
                 c.setRequestProperty("User-Agent", "Kevoree");
+
+
+                String location = c.getHeaderField("Location");
+                if(location != null){
+                    try {
+                        c.getInputStream().close();
+                    } catch (Exception e){
+                    }
+                    c = new URL(location).openConnection();
+                    c.setRequestProperty("User-Agent", "Kevoree");
+                }
+
                 InputStream in = c.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 String line = reader.readLine();

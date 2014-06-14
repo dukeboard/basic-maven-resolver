@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
@@ -61,7 +62,21 @@ public class MavenArtefactDownloader {
 
             //DOWNLOAD FILE
             URL artefactURL = new URL(urlBuilder.toString());
-            InputStream in = artefactURL.openStream();
+
+            URLConnection con = artefactURL.openConnection();
+            con.setRequestProperty("User-Agent", "Kevoree");
+            String location = con.getHeaderField("Location");
+            if(location != null){
+                try {
+                    con.getInputStream().close();
+                } catch (Exception e){
+                }
+                con = new URL(location).openConnection();
+                con.setRequestProperty("User-Agent", "Kevoree");
+            }
+
+            InputStream in = con.getInputStream();
+
             FileOutputStream fos = new FileOutputStream(targetFile);
             byte data[] = new byte[1024];
             int count;
